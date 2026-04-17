@@ -1,10 +1,12 @@
 /* =============================================
-   chat.js — DeepSeek AI Chat Logic
+   chat.js — DeepSeek AI Chat (API key from .env)
    ============================================= */
 
-const DEEPSEEK_API = 'https://api.deepseek.com/v1/chat/completions'
+import { getCurrentMarketSnapshot } from './market.js'
+
+const DEEPSEEK_API   = 'https://api.deepseek.com/v1/chat/completions'
 const DEEPSEEK_MODEL = 'deepseek-chat'
-const SESSION_KEY = 'tradeai_dskey'
+const DEEPSEEK_KEY   = import.meta.env.VITE_DEEPSEEK_KEY
 
 /* ---- State ---- */
 let conversationHistory = []
@@ -12,78 +14,71 @@ let learnedTopics       = []
 let questionCount       = 0
 let topicCount          = 0
 
-/* ---- Keyword groups for topic learning ---- */
+/* ---- Keyword groups for topic extraction ---- */
 const KEYWORD_GROUPS = [
-  ['gold',         'XAU',       'emas'],
-  ['DXY',          'dolar',     'dollar'],
-  ['yield',        'US02Y',     'US10Y',       'obligasi'],
-  ['Fed',          'FOMC',      'suku bunga'],
-  ['Bitcoin',      'kripto',    'crypto'],
-  ['support',      'resistance','level'],
-  ['scalping',     'swing trading', 'position'],
-  ['risk management','stop loss','take profit'],
-  ['Elliott',      'wave',      'fibonacci'],
-  ['moving average','RSI',      'MACD'],
-  ['fundamental',  'NFP',       'CPI',         'inflasi'],
-  ['forex',        'EUR',       'GBP',         'JPY'],
+  ['gold',           'XAU',       'emas'],
+  ['DXY',            'dolar',     'dollar'],
+  ['yield',          'US02Y',     'US10Y',    'obligasi'],
+  ['Fed',            'FOMC',      'suku bunga'],
+  ['Bitcoin',        'kripto',    'crypto'],
+  ['support',        'resistance','level'],
+  ['scalping',       'swing',     'position trading'],
+  ['risk management','stop loss', 'take profit'],
+  ['Elliott',        'fibonacci', 'wave'],
+  ['moving average', 'RSI',       'MACD'],
+  ['fundamental',    'NFP',       'CPI',      'inflasi'],
+  ['forex',          'EUR',       'GBP',      'JPY'],
 ]
 
-/* ---- Helpers ---- */
-function getApiKey() {
-  return document.getElementById('api-key').value.trim()
-}
-
-function getCurrentMarketContext() {
-  return `
-DXY: ${document.getElementById('dxy-val').textContent}
-US02Y: ${document.getElementById('us02y-val').textContent}
-US10Y: ${document.getElementById('us10y-val').textContent}
-Gold (XAU/USD): ${document.getElementById('gold-val').textContent}
-Gold Signal: ${document.getElementById('gold-badge').textContent}
-`
-}
-
+/* ---- Build system prompt with live market data ---- */
 function buildSystemPrompt() {
-  const memoryContext = learnedTopics.length > 0
-    ? `\n\nTopik yang telah dipelajari dari pengguna ini:\n${learnedTopics.map(t => `- ${t}`).join('\n')}`
+  const snap = getCurrentMarketSnapshot()
+  const memCtx = learnedTopics.length > 0
+    ? `\n\nTopik yang dipelajari dari pengguna:\n${learnedTopics.map(t => `- ${t}`).join('\n')}`
     : ''
 
-  return `Kamu adalah AI Trading Assistant profesional yang fokus pada analisis pasar keuangan, khususnya Gold (XAU/USD), Forex, dan instrumen derivatif. Kamu berbicara dalam Bahasa Indonesia dengan gaya yang profesional namun mudah dipahami.
+  return `Kamu adalah AI Trading Assistant profesional — TradeAI — yang fokus pada analisis pasar keuangan khususnya Gold (XAU/USD), Forex, dan instrumen derivatif. Berbicara dalam Bahasa Indonesia, profesional namun mudah dipahami.
 
-Data pasar saat ini:
-${getCurrentMarketContext()}
+Data pasar LIVE saat ini:
+- XAU/USD (Gold): ${snap.gold}
+- DXY (USD Index): ${snap.dxy}
+- US02Y (2-Year Yield): ${snap.us02y}
+- US10Y (10-Year Yield): ${snap.us10y}
+- Gold Signal: ${snap.signal}
 
-Kemampuan utamamu:
-1. Analisis DXY, US02Y, US10Y dan dampaknya terhadap Gold
+Keahlian:
+1. Analisis macro: DXY, yield curve, Fed policy → dampak ke Gold
 2. Technical & fundamental analysis
-3. Risk management dan money management
-4. Strategi trading (scalping, swing, position trading)
-5. Interpretasi yield curve dan kebijakan Fed
-6. Analisis korelasi antar aset
+3. Risk management, money management, position sizing
+4. Strategi trading: scalping, swing, position trading
+5. Interpretasi yield curve, spread 2Y-10Y, inversion
+6. Korelasi antar aset (Gold, USD, bonds, equities)
 
-Instruksi penting:
-- Selalu berikan analisis berdasarkan data pasar terkini yang diberikan
-- Ingat preferensi dan topik yang sudah didiskusikan dengan pengguna
-- Tambahkan disclaimer bahwa ini bukan saran keuangan jika membahas rekomendasi spesifik
-- Jawab dengan concise tapi informatif, gunakan struktur yang jelas
-- Jika ada topik baru yang penting, ekstrak dan simpan sebagai insight${memoryContext}`
+Aturan:
+- Selalu reference data live di atas dalam analisis
+- Ingat topik yang sudah didiskusikan (context window)
+- Tambahkan disclaimer "bukan saran keuangan" untuk rekomendasi spesifik
+- Jawab concise, terstruktur, gunakan angka nyata dari data live
+- Bila sinyal bertentangan, jelaskan konfliknya secara objektif${memCtx}`
 }
 
-/* ---- DOM Helpers ---- */
+/* ---- DOM helpers ---- */
 export function addMessage(role, text) {
   const container = document.getElementById('chat-messages')
-  const div       = document.createElement('div')
-  div.className   = `message ${role}`
+  const div = document.createElement('div')
+  div.className = `message ${role}`
 
   const time = new Date().toLocaleTimeString('id-ID', {
-    timeZone: 'Asia/Jakarta',
-    hour12: false,
-    hour: '2-digit',
-    minute: '2-digit',
+    timeZone: 'Asia/Jakarta', hour12: false, hour: '2-digit', minute: '2-digit',
   })
 
+  // Simple markdown: **bold**, newlines
+  const html = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>')
+
   div.innerHTML = `
-    <div class="message-bubble">${text.replace(/\n/g, '<br>')}</div>
+    <div class="message-bubble">${html}</div>
     <div class="message-meta">${role === 'ai' ? 'TradeAI' : 'Anda'} • ${time}</div>`
 
   container.appendChild(div)
@@ -92,9 +87,9 @@ export function addMessage(role, text) {
 
 export function showTyping() {
   const container = document.getElementById('chat-messages')
-  const div       = document.createElement('div')
-  div.className   = 'message ai'
-  div.innerHTML   = `<div class="typing-indicator">
+  const div = document.createElement('div')
+  div.className = 'message ai'
+  div.innerHTML = `<div class="typing-indicator">
     <div class="typing-dot"></div>
     <div class="typing-dot"></div>
     <div class="typing-dot"></div>
@@ -104,61 +99,30 @@ export function showTyping() {
   return div
 }
 
-/* ---- Topic Learning ---- */
+/* ---- Topic learning ---- */
 function learnTopic(question) {
   const q = question.toLowerCase()
   for (const group of KEYWORD_GROUPS) {
-    const matched = group[0]
     if (group.some(k => q.includes(k.toLowerCase()))) {
-      if (!learnedTopics.includes(matched)) {
-        learnedTopics.push(matched)
+      const key = group[0]
+      if (!learnedTopics.includes(key)) {
+        learnedTopics.push(key)
         topicCount++
         document.getElementById('stat-t').textContent = topicCount
-        updateMemoryUI()
       }
       break
     }
   }
 }
 
-function updateMemoryUI() {
-  const list = document.getElementById('memory-list')
-  if (learnedTopics.length === 0) {
-    list.innerHTML = '<div class="memory-empty">Belum ada topik yang dipelajari.</div>'
-    document.getElementById('mem-count').textContent = '0 topik tersimpan'
-    return
-  }
-
-  list.innerHTML = learnedTopics
-    .slice(-6)
-    .map(
-      t => `<div class="memory-item" data-topic="${t}">
-              <div class="memory-dot"></div>
-              <span>${t}</span>
-            </div>`
-    )
-    .join('')
-
-  // Attach click handlers for memory items
-  list.querySelectorAll('.memory-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const topic = el.dataset.topic
-      quickSend(`Ceritakan lebih lanjut tentang ${topic} dalam konteks trading`)
-    })
-  })
-
-  document.getElementById('mem-count').textContent = `${learnedTopics.length} topik tersimpan`
-}
-
-/* ---- Core Send ---- */
+/* ---- Core send ---- */
 export async function sendMessage() {
   const input  = document.getElementById('user-input')
-  const apiKey = getApiKey()
   const text   = input.value.trim()
-
   if (!text) return
-  if (!apiKey) {
-    addMessage('ai', '⚠️ Mohon masukkan DeepSeek API Key terlebih dahulu di kolom di atas.')
+
+  if (!DEEPSEEK_KEY || DEEPSEEK_KEY === 'your_deepseek_key_here') {
+    addMessage('ai', '⚠️ DeepSeek API Key belum dikonfigurasi. Masukkan key ke file `.env` (VITE_DEEPSEEK_KEY=sk-...) lalu restart dev server.')
     return
   }
 
@@ -167,21 +131,20 @@ export async function sendMessage() {
   input.style.height = 'auto'
 
   questionCount++
-  document.getElementById('stat-q').textContent  = questionCount
+  document.getElementById('stat-q').textContent   = questionCount
   document.getElementById('msg-count').textContent = `${questionCount} pesan`
 
   conversationHistory.push({ role: 'user', content: text })
 
   const typingEl = showTyping()
-  const sendBtn  = document.getElementById('send-btn')
-  sendBtn.disabled = true
+  document.getElementById('send-btn').disabled = true
 
   try {
-    const response = await fetch(DEEPSEEK_API, {
+    const res = await fetch(DEEPSEEK_API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${DEEPSEEK_KEY}`,
       },
       body: JSON.stringify({
         model: DEEPSEEK_MODEL,
@@ -194,8 +157,7 @@ export async function sendMessage() {
       }),
     })
 
-    const data = await response.json()
-
+    const data = await res.json()
     if (data.error) throw new Error(data.error.message || 'API Error')
 
     const reply = data.choices[0].message.content
@@ -204,15 +166,13 @@ export async function sendMessage() {
     typingEl.remove()
     addMessage('ai', reply)
     learnTopic(text)
+
   } catch (err) {
     typingEl.remove()
-    addMessage(
-      'ai',
-      `❌ Error: ${err.message}\n\nPastikan API Key DeepSeek valid dan format: sk-...`
-    )
+    addMessage('ai', `❌ Error: ${err.message}\n\nPastikan VITE_DEEPSEEK_KEY di file .env valid (format: sk-...).`)
   }
 
-  sendBtn.disabled = false
+  document.getElementById('send-btn').disabled = false
 }
 
 export function quickSend(text) {
@@ -220,31 +180,19 @@ export function quickSend(text) {
   sendMessage()
 }
 
-export function clearMemory() {
+export function clearSession() {
   learnedTopics       = []
   conversationHistory = []
   questionCount       = 0
   topicCount          = 0
 
-  document.getElementById('stat-q').textContent   = '0'
-  document.getElementById('stat-t').textContent   = '0'
-  document.getElementById('msg-count').textContent = '0 pesan'
-  updateMemoryUI()
+  document.getElementById('stat-q').textContent    = '0'
+  document.getElementById('stat-t').textContent    = '0'
+  document.getElementById('msg-count').textContent  = '0 pesan'
 
   document.getElementById('chat-messages').innerHTML = `
     <div class="message ai">
-      <div class="message-bubble">Memory telah dihapus. Saya siap memulai sesi baru! Apa yang ingin Anda diskusikan?</div>
+      <div class="message-bubble">Sesi baru dimulai! Data market masih aktif. Apa yang ingin Anda analisis?</div>
       <div class="message-meta">TradeAI • Sekarang</div>
     </div>`
-}
-
-/* ---- Persist API key in sessionStorage ---- */
-export function initApiKeyPersistence() {
-  const keyInput = document.getElementById('api-key')
-  const saved    = sessionStorage.getItem(SESSION_KEY)
-  if (saved) keyInput.value = saved
-
-  keyInput.addEventListener('change', () => {
-    sessionStorage.setItem(SESSION_KEY, keyInput.value)
-  })
 }

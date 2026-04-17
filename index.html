@@ -5,185 +5,178 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TradeAI — Market Intelligence</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
 
 <header>
   <div class="logo">Trade<span>AI</span></div>
+  <div class="header-center">
+    <span class="hc-item">XAU <span class="hc-val gold" id="hdr-gold-val">—</span></span>
+    <span class="hc-sep">|</span>
+    <span class="hc-item">DXY <span class="hc-val" id="hdr-dxy-val">—</span></span>
+    <span class="hc-sep">|</span>
+    <span class="hc-item">US02Y <span class="hc-val" id="hdr-02y-val">—</span></span>
+    <span class="hc-sep">|</span>
+    <span class="hc-item">US10Y <span class="hc-val" id="hdr-10y-val">—</span></span>
+  </div>
   <div class="header-right">
-    <span class="live-dot"></span>
+    <span class="live-dot" id="live-dot"></span>
     <span id="clock">--:--:--</span>
-    <span>| Market Intelligence</span>
+    <span class="hdr-label">WIB</span>
   </div>
 </header>
 
-<main>
-  <div class="section-label">▸ Market Dashboard — Real-time Indicators</div>
+<div class="app-layout">
 
-  <div class="dashboard">
-    <!-- DXY -->
-    <div class="market-card" id="dxy-card">
-      <div class="card-ticker">DXY <span class="tag">USD INDEX</span></div>
-      <div class="card-value" id="dxy-val">104.82</div>
-      <div class="card-change" id="dxy-chg">
-        <span class="up">▲ +0.34 (+0.32%)</span>
-      </div>
-      <canvas class="sparkline" id="spark-dxy" width="160" height="36"></canvas>
-      <div class="card-label" id="dxy-label">
-        Dolar AS menguat. DXY di atas 104 → tekanan bearish pada Gold.
-      </div>
-    </div>
+  <!-- LEFT: AI CHAT -->
+  <section class="chat-section">
+    <div class="section-label">▸ AI Trading Assistant <span class="ai-badge">DEEPSEEK</span></div>
 
-    <!-- US02Y -->
-    <div class="market-card" id="us02y-card">
-      <div class="card-ticker">US02Y <span class="tag">2-YR YIELD</span></div>
-      <div class="card-value" id="us02y-val">4.71%</div>
-      <div class="card-change" id="us02y-chg">
-        <span class="down">▼ -0.03 (-0.64%)</span>
-      </div>
-      <canvas class="sparkline" id="spark-us02y" width="160" height="36"></canvas>
-      <div class="card-label" id="us02y-label">
-        Yield jangka pendek turun → ekspektasi Fed cut meningkat, sedikit bullish Gold.
-      </div>
-    </div>
-
-    <!-- US10Y -->
-    <div class="market-card" id="us10y-card">
-      <div class="card-ticker">US10Y <span class="tag">10-YR YIELD</span></div>
-      <div class="card-value" id="us10y-val">4.38%</div>
-      <div class="card-change" id="us10y-chg">
-        <span class="down">▼ -0.05 (-1.13%)</span>
-      </div>
-      <canvas class="sparkline" id="spark-us10y" width="160" height="36"></canvas>
-      <div class="card-label" id="us10y-label">
-        Real yield turun → biaya oportunitas hold Gold berkurang → supportive untuk XAU.
-      </div>
-    </div>
-
-    <!-- GOLD SIGNAL -->
-    <div class="market-card gold-card" id="gold-card">
-      <div class="card-ticker">XAU/USD <span class="tag">GOLD SIGNAL</span></div>
-      <div class="card-value" id="gold-val">$2,387</div>
-      <div class="gold-signal">
-        <div class="signal-badge signal-neutral" id="gold-badge">MIXED</div>
-        <div class="gold-summary" id="gold-summary">
-          DXY kuat menekan, namun yield US jangka pendek &amp; panjang turun — sinyal mixed. Tunggu konfirmasi arah DXY.
-        </div>
-        <div class="mini-bar" id="mini-bar">
-          <div class="mini-bar-item" style="background: var(--red); flex: 3;"></div>
-          <div class="mini-bar-item" style="background: var(--muted); flex: 1;"></div>
-          <div class="mini-bar-item" style="background: var(--green); flex: 2;"></div>
-        </div>
-        <div class="mini-bar-labels">
-          <span>BEARISH</span><span>NEUTRAL</span><span>BULLISH</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GOLD ANALYSIS -->
-  <div class="gold-analysis">
-    <div class="analysis-item">
-      <h4>DXY Impact</h4>
-      <p id="ana-dxy">DXY di atas 104.5 mengindikasikan dolar kuat. Secara historis, korelasi DXY-Gold bersifat negatif kuat (-0.8). Kenaikan DXY menekan harga emas dalam jangka pendek.</p>
-    </div>
-    <div class="analysis-item">
-      <h4>Yield Curve Signal</h4>
-      <p id="ana-yield">US02Y turun lebih cepat dari US10Y → kurva yield menjadi less inverted. Kondisi ini sering mendahului pemangkasan Fed rate, yang secara historis bullish untuk Gold.</p>
-    </div>
-    <div class="analysis-item">
-      <h4>Kesimpulan Gold</h4>
-      <p id="ana-gold">Konflik sinyal: DXY bearish vs yield supportive. Bias netral-cenderung bullish jika DXY gagal tembus 105.5. Support Gold di $2,340–$2,360, resistance $2,420–$2,450.</p>
-    </div>
-  </div>
-
-  <!-- UPDATE BAR -->
-  <div class="update-bar">
-    <span>Data simulasi — <span id="last-update">--</span> WIB | Gunakan TradingView untuk data real-time</span>
-    <button class="refresh-btn" id="refresh-btn">↻ Update</button>
-  </div>
-
-  <!-- CHAT + SIDEBAR -->
-  <div class="section-label">▸ AI Assistant — Powered by DeepSeek</div>
-
-  <div class="chat-wrapper">
     <div class="chat-container">
-      <div class="chat-header">
-        <h3>
-          AI Trading Assistant
-          <span class="ai-badge">DEEPSEEK</span>
-        </h3>
-        <span class="msg-count" id="msg-count">0 pesan</span>
-      </div>
-
       <div class="chat-messages" id="chat-messages">
         <div class="message ai">
           <div class="message-bubble">
-            Halo! Saya AI Trading Assistant berbasis DeepSeek. Saya dapat membantu Anda menganalisis pasar, strategi trading, fundamental, technical analysis, dan lainnya.<br><br>
-            <strong style="color:var(--accent)">Masukkan API Key DeepSeek</strong> di bawah untuk mulai. Saya akan belajar dari setiap pertanyaan Anda untuk memberikan jawaban yang lebih relevan.
+            Halo! Saya <strong style="color:var(--accent)">TradeAI</strong> — asisten trading berbasis DeepSeek.<br><br>
+            Saya sudah terhubung ke data pasar real-time. Tanya apa saja tentang Gold, DXY, yield curve, strategi, atau analisis macro.
           </div>
           <div class="message-meta">TradeAI • Sekarang</div>
         </div>
       </div>
 
+      <div class="quick-row">
+        <button class="qchip" data-q="Analisis kondisi Gold saat ini berdasarkan DXY dan yield curve">📊 Analisis Gold</button>
+        <button class="qchip" data-q="Kapan waktu terbaik entry Gold berdasarkan data macro saat ini?">⏰ Entry timing</button>
+        <button class="qchip" data-q="Jelaskan korelasi DXY vs Gold secara detail">📉 DXY korelasi</button>
+        <button class="qchip" data-q="Strategi hedging dengan Gold untuk portfolio">🛡️ Hedging</button>
+        <button class="qchip" data-q="Apa sinyal dari yield curve US02Y vs US10Y saat ini?">📈 Yield curve</button>
+        <button class="qchip" data-q="Indikator teknikal terbaik untuk trading Gold">🔧 Teknikal</button>
+      </div>
+
       <div class="chat-input-area">
-        <div class="api-key-section">
-          <input type="password" class="api-key-input" id="api-key" placeholder="🔑 Masukkan DeepSeek API Key (sk-...)" />
-        </div>
         <div class="input-row">
-          <textarea class="chat-input" id="user-input" placeholder="Tanya seputar trading, analisis Gold, DXY, strategi..." rows="1"></textarea>
+          <textarea class="chat-input" id="user-input"
+            placeholder="Tanya analisis Gold, DXY, strategi, macro..." rows="1"></textarea>
           <button class="send-btn" id="send-btn">
             <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
           </button>
         </div>
-      </div>
-    </div>
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sidebar-card">
-        <h4>Quick Questions</h4>
-        <button class="quick-btn" data-q="Bagaimana pengaruh DXY naik terhadap harga Gold saat ini?">📊 DXY vs Gold korelasi</button>
-        <button class="quick-btn" data-q="Analisis yield curve US02Y dan US10Y untuk Gold">📈 Yield curve analysis</button>
-        <button class="quick-btn" data-q="Kapan waktu terbaik beli Gold berdasarkan kondisi macro saat ini?">⏰ Entry timing Gold</button>
-        <button class="quick-btn" data-q="Apa perbedaan trading Gold spot vs futures?">❓ Gold spot vs futures</button>
-        <button class="quick-btn" data-q="Jelaskan strategi hedging dengan Gold">🛡️ Hedging dengan Gold</button>
-        <button class="quick-btn" data-q="Apa indikator terbaik untuk trading forex?">💹 Indikator forex</button>
-      </div>
-
-      <div class="sidebar-card">
-        <h4>
-          AI Memory
-          <button class="clear-btn" id="clear-btn">hapus</button>
-        </h4>
-        <div id="memory-list">
-          <div class="memory-empty">Belum ada topik yang dipelajari.</div>
-        </div>
-        <div class="memory-count" id="mem-count">0 topik tersimpan</div>
-      </div>
-
-      <div class="sidebar-card">
-        <h4>Session Stats</h4>
-        <div class="stats-grid">
-          <div class="stat-box">
-            <div class="stat-num" id="stat-q">0</div>
-            <div class="stat-label">Pertanyaan</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-num blue" id="stat-t">0</div>
-            <div class="stat-label">Topik baru</div>
-          </div>
+        <div class="input-meta">
+          <span id="msg-count">0 pesan</span>
+          <span>·</span>
+          <button class="clear-btn" id="clear-btn">Hapus sesi</button>
         </div>
       </div>
     </div>
-  </div>
-</main>
+  </section>
 
-<footer>
-  TradeAI — AI Trading Assistant &nbsp;|&nbsp; Data bersifat simulasi &nbsp;|&nbsp; Bukan saran keuangan
-</footer>
+  <!-- RIGHT: MARKET SIDEBAR -->
+  <aside class="market-sidebar">
+    <div class="section-label">
+      ▸ Market Real-time
+      <button class="refresh-btn" id="refresh-btn" title="Refresh data">↻</button>
+    </div>
+
+    <!-- GOLD SIGNAL -->
+    <div class="signal-card">
+      <div class="sc-header">
+        <div>
+          <div class="sc-ticker">XAU/USD</div>
+          <div class="sc-price" id="gold-price">$—</div>
+          <div class="sc-change" id="gold-change">—</div>
+        </div>
+        <div class="signal-badge signal-neutral" id="gold-badge">LOADING</div>
+      </div>
+      <div class="signal-bar-wrap">
+        <div class="signal-bar">
+          <div class="sb-fill" id="sb-fill" style="width:50%"></div>
+        </div>
+        <div class="signal-bar-labels"><span>BEARISH</span><span>BULLISH</span></div>
+      </div>
+      <div class="sc-summary" id="sc-summary">Memuat data pasar...</div>
+    </div>
+
+    <!-- DXY -->
+    <div class="mcard">
+      <div class="mc-top">
+        <div class="mc-label">DXY <span class="mc-tag">USD INDEX</span></div>
+        <div class="mc-right">
+          <div class="mc-val" id="dxy-val">—</div>
+          <div class="mc-chg" id="dxy-chg"><span class="neutral">—</span></div>
+        </div>
+      </div>
+      <canvas id="spark-dxy" class="sparkline" width="220" height="36"></canvas>
+      <div class="mc-desc" id="dxy-desc">Memuat...</div>
+    </div>
+
+    <!-- US02Y -->
+    <div class="mcard">
+      <div class="mc-top">
+        <div class="mc-label">US02Y <span class="mc-tag">2-YR YIELD</span></div>
+        <div class="mc-right">
+          <div class="mc-val" id="us02y-val">—</div>
+          <div class="mc-chg" id="us02y-chg"><span class="neutral">—</span></div>
+        </div>
+      </div>
+      <canvas id="spark-us02y" class="sparkline" width="220" height="36"></canvas>
+      <div class="mc-desc" id="us02y-desc">Memuat...</div>
+    </div>
+
+    <!-- US10Y -->
+    <div class="mcard">
+      <div class="mc-top">
+        <div class="mc-label">US10Y <span class="mc-tag">10-YR YIELD</span></div>
+        <div class="mc-right">
+          <div class="mc-val" id="us10y-val">—</div>
+          <div class="mc-chg" id="us10y-chg"><span class="neutral">—</span></div>
+        </div>
+      </div>
+      <canvas id="spark-us10y" class="sparkline" width="220" height="36"></canvas>
+      <div class="mc-desc" id="us10y-desc">Memuat...</div>
+    </div>
+
+    <!-- GOLD CONCLUSION -->
+    <div class="conclusion-card">
+      <div class="cc-title">Kesimpulan Gold</div>
+      <div class="cc-row">
+        <div class="cc-item">
+          <div class="cc-key">DXY Impact</div>
+          <div class="cc-text" id="cc-dxy-text">—</div>
+        </div>
+        <div class="cc-item">
+          <div class="cc-key">Yield Curve</div>
+          <div class="cc-text" id="cc-yield-text">—</div>
+        </div>
+      </div>
+      <div class="cc-conclusion" id="cc-conclusion">Menunggu data pasar real-time...</div>
+      <div class="cc-update">Update: <span id="last-update">—</span> WIB</div>
+    </div>
+
+    <!-- SESSION STATS -->
+    <div class="stats-card">
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-num accent" id="stat-q">0</div>
+          <div class="stat-lbl">Pertanyaan</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num blue" id="stat-t">0</div>
+          <div class="stat-lbl">Topik</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num green" id="stat-fetch">0</div>
+          <div class="stat-lbl">API Fetch</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      Real-time via Alpha Vantage · Bukan saran keuangan
+    </div>
+  </aside>
+
+</div>
 
 <script type="module" src="/src/main.js"></script>
 </body>
