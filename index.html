@@ -11,7 +11,10 @@
 <body>
 
 <header>
-  <div class="logo">Trade<span>AI</span></div>
+  <div class="header-left">
+    <button class="sidebar-toggle" id="sidebar-toggle" title="Riwayat chat">☰</button>
+    <div class="logo">Trade<span>AI</span></div>
+  </div>
   <div class="header-center">
     <span class="hc-item">XAU <span class="hc-val gold" id="hdr-gold-val">—</span></span>
     <span class="hc-sep">|</span>
@@ -30,21 +33,42 @@
 
 <div class="app-layout">
 
-  <!-- LEFT: AI CHAT -->
+  <!-- LEFT SIDEBAR: Chat History -->
+  <aside class="chat-history-sidebar" id="chat-history-sidebar">
+    <div class="chs-header">
+      <span class="chs-title">Riwayat Chat</span>
+      <button class="new-chat-btn" id="new-chat-btn">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        New Chat
+      </button>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="history-empty">Belum ada sesi</div>
+    </div>
+    <div class="chs-footer">TradeAI v2 · DeepSeek</div>
+  </aside>
+
+  <!-- CENTER: AI Chat -->
   <section class="chat-section">
-    <div class="section-label">▸ AI Trading Assistant <span class="ai-badge">DEEPSEEK</span></div>
+    <div class="chat-section-header">
+      <span class="section-label-inline">▸ AI Trading Assistant</span>
+      <span class="ai-badge">DEEPSEEK</span>
+      <span class="spacer"></span>
+      <span id="msg-count" class="msg-count">0 pesan</span>
+      <button class="clear-btn" id="clear-btn">Hapus sesi</button>
+    </div>
 
-    <div class="chat-container">
-      <div class="chat-messages" id="chat-messages">
-        <div class="message ai">
-          <div class="message-bubble">
-            Halo! Saya <strong style="color:var(--accent)">TradeAI</strong> — asisten trading berbasis DeepSeek.<br><br>
-            Saya sudah terhubung ke data pasar real-time. Tanya apa saja tentang Gold, DXY, yield curve, strategi, atau analisis macro.
-          </div>
-          <div class="message-meta">TradeAI • Sekarang</div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="message ai">
+        <div class="message-bubble">
+          Halo! Saya <strong style="color:var(--accent)">TradeAI</strong> — asisten trading berbasis DeepSeek.<br><br>
+          Saya sudah terhubung ke data pasar real-time. Tanya apa saja tentang Gold, DXY, yield curve, strategi, atau analisis macro.
         </div>
+        <div class="message-meta">TradeAI • Sekarang</div>
       </div>
+    </div>
 
+    <div class="chat-bottom">
       <div class="quick-row">
         <button class="qchip" data-q="Analisis kondisi Gold saat ini berdasarkan DXY dan yield curve">📊 Analisis Gold</button>
         <button class="qchip" data-q="Kapan waktu terbaik entry Gold berdasarkan data macro saat ini?">⏰ Entry timing</button>
@@ -62,16 +86,12 @@
             <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
           </button>
         </div>
-        <div class="input-meta">
-          <span id="msg-count">0 pesan</span>
-          <span>·</span>
-          <button class="clear-btn" id="clear-btn">Hapus sesi</button>
-        </div>
+        <div class="input-hint">Enter untuk kirim · Shift+Enter baris baru</div>
       </div>
     </div>
   </section>
 
-  <!-- RIGHT: MARKET SIDEBAR -->
+  <!-- RIGHT: Market Sidebar -->
   <aside class="market-sidebar">
     <div class="section-label">
       ▸ Market Real-time
@@ -136,7 +156,7 @@
       <div class="mc-desc" id="us10y-desc">Memuat...</div>
     </div>
 
-    <!-- GOLD CONCLUSION -->
+    <!-- CONCLUSION -->
     <div class="conclusion-card">
       <div class="cc-title">Kesimpulan Gold</div>
       <div class="cc-row">
@@ -172,7 +192,7 @@
     </div>
 
     <div class="sidebar-footer">
-      Real-time via Alpha Vantage · Bukan saran keuangan
+      Gold: Alpha Vantage · DXY/Yield: stooq.com · Bukan saran keuangan
     </div>
   </aside>
 
