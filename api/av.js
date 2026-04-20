@@ -1,15 +1,26 @@
-// Vercel serverless function — proxies Alpha Vantage
-// Avoids CORS: browser → /api/av → Alpha Vantage
-export default async function handler(req, res) {
-  const params = new URLSearchParams(req.query)
+// Vercel Edge Function — proxy Alpha Vantage (avoids browser CORS)
+export const config = { runtime: 'edge' }
+
+export default async function handler(req) {
+  const url = new URL(req.url)
+  const params = url.searchParams
   params.set('apikey', process.env.VITE_ALPHA_VANTAGE_KEY || '')
 
   try {
-    const response = await fetch(`https://www.alphavantage.co/query?${params}`)
-    const data = await response.json()
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.status(200).json(data)
+    const res = await fetch(`https://www.alphavantage.co/query?${params}`)
+    const data = await res.text()
+    return new Response(data, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-store',
+      },
+    })
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 }
