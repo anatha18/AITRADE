@@ -1,90 +1,27 @@
-# TradeAI — Market Intelligence Dashboard v2
+Overview
 
-Dashboard analisis Gold (XAU/USD) real-time dengan AI Trading Assistant berbasis DeepSeek.
+TradeAI merupakan sebuah sistem dashboard analisis pasar yang dirancang untuk mendukung pemahaman terhadap pergerakan harga Gold (XAU/USD) melalui integrasi data pasar dan pendekatan kecerdasan buatan. Sistem ini menggabungkan data pasar terkini dengan pemrosesan berbasis AI untuk menghasilkan informasi analitis yang bersifat ringkas, sistematis, dan kontekstual.
 
-## Struktur File
+Pengembangan TradeAI dilatarbelakangi oleh kebutuhan akan alat bantu analisis yang mampu menyederhanakan kompleksitas hubungan antar indikator makroekonomi, seperti US Dollar Index (DXY) dan imbal hasil obligasi pemerintah Amerika Serikat (US Treasury Yields), terhadap pergerakan harga emas.
 
-```
-tradeai/
-├── index.html          ← HTML utama (layout chat-left, market-right)
-├── src/
-│   ├── style.css       ← Semua CSS (compact layout)
-│   ├── main.js         ← Entry point
-│   ├── market.js       ← Real-time data via Alpha Vantage
-│   └── chat.js         ← AI chat via DeepSeek (key dari .env)
-├── .env                ← API keys (JANGAN di-commit ke GitHub!)
-├── .env.example        ← Template .env untuk referensi
-├── .gitignore          ← Exclude node_modules, dist, .env
-├── package.json
-├── vite.config.js
-└── vercel.json
-```
+Melalui pendekatan ini, pengguna tidak hanya memperoleh data mentah, tetapi juga interpretasi yang dapat membantu dalam proses pengambilan keputusan berbasis informasi.
 
-## Setup API Keys
+Features
 
-Edit file `.env`:
-```
-VITE_ALPHA_VANTAGE_KEY=masukkan_key_alpha_vantage_disini
-VITE_DEEPSEEK_KEY=sk-masukkan_key_deepseek_disini
-```
+Penyediaan Data Pasar Terkini
+Sistem menyediakan data pasar untuk instrumen utama yang berkaitan dengan Gold (XAU/USD), termasuk US Dollar Index (DXY), serta US Treasury Yields dengan tenor 2 tahun (US02Y) dan 10 tahun (US10Y). Data ini digunakan sebagai dasar dalam proses analisis.
 
-- Alpha Vantage (gratis): https://www.alphavantage.co/support/#api-key
-- DeepSeek: https://platform.deepseek.com/api_keys
+Analisis Pasar Otomatis
+TradeAI melakukan klasifikasi kondisi pasar secara otomatis ke dalam kategori seperti bullish, bearish, atau mixed. Klasifikasi ini didasarkan pada hubungan antar indikator yang dianalisis secara terintegrasi.
 
-## Jalankan Lokal
+Asisten Analisis Berbasis AI
+Sistem menyediakan fitur interaksi berbasis AI yang memungkinkan pengguna mengajukan pertanyaan terkait kondisi pasar. Respons yang diberikan bersifat kontekstual dan mempertimbangkan data pasar yang tersedia pada saat itu.
 
-```bash
-npm install
-npm run dev
-# Buka http://localhost:5173
-```
+Integrasi Analisis Antar Indikator
+Pendekatan analisis dilakukan dengan mempertimbangkan keterkaitan antara pergerakan DXY dan yield curve terhadap harga emas, sehingga menghasilkan pemahaman yang lebih komprehensif dibandingkan analisis indikator tunggal.
 
-## Deploy ke GitHub + Vercel
+Pembaruan Data Berkala
+Data pasar diperbarui secara periodik untuk menjaga relevansi informasi yang digunakan dalam proses analisis.
 
-### 1. Push ke GitHub
-
-```bash
-git init
-git add .
-git commit -m "feat: TradeAI v2"
-git remote add origin https://github.com/USERNAME/tradeai.git
-git branch -M main
-git push -u origin main
-```
-
-> ⚠️ File `.env` TIDAK ikut ke GitHub (sudah ada di .gitignore). Aman!
-
-### 2. Set Environment Variables di Vercel
-
-Ini penting — karena `.env` tidak di-push, Vercel perlu tahu key-nya:
-
-1. Buka dashboard Vercel → pilih project TradeAI
-2. Klik **Settings** → **Environment Variables**
-3. Tambahkan:
-   - `VITE_ALPHA_VANTAGE_KEY` → isi dengan key Alpha Vantage
-   - `VITE_DEEPSEEK_KEY` → isi dengan key DeepSeek
-4. Klik **Save** → **Redeploy**
-
-### 3. Deploy
-
-1. Buka vercel.com → Login dengan GitHub
-2. Klik **Add New Project** → pilih repo `tradeai`
-3. Vercel otomatis deteksi Vite — klik **Deploy**
-4. Setelah itu set Environment Variables seperti di atas
-
-## Fitur
-
-- Layout compact: AI Chat (kiri) + Market Sidebar (kanan)
-- Real-time data: XAU/USD, DXY, US02Y, US10Y via Alpha Vantage
-- Sparkline chart per indikator (weekly series)
-- Gold Signal otomatis (Bullish/Mixed/Bearish)
-- Kesimpulan Gold dengan analisis DXY + yield curve
-- AI Chat DeepSeek dengan konteks data live
-- Auto-refresh setiap 5 menit
-- Header mini ticker selalu tampil
-
-## Catatan
-
-- Alpha Vantage free tier: 25 requests/day, 5 requests/minute
-- Data real-time dengan delay ~15 menit untuk free tier
-- Bukan saran keuangan
+Visualisasi Data Sederhana
+Sistem menyediakan representasi visual dalam bentuk grafik ringkas untuk mendukung identifikasi tren secara cepat tanpa mengurangi fokus pada interpretasi analitis.
