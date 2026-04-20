@@ -69,7 +69,14 @@ function fmtChange(change, pct) {
 function setText(id, val)  { const e = document.getElementById(id); if (e) e.textContent = val }
 function setHtml(id, html) { const e = document.getElementById(id); if (e) e.innerHTML   = html }
 
-function updateGoldSignal(dxy, us02y, us10y, dxyChg, us02yChg, us10yChg) {
+function updateGoldSignal(goldPrice, dxy, us02y, us10y, dxyChg, us02yChg, us10yChg) {
+  // Hitung support/resistance dinamis dari harga Gold saat ini
+  const sup1 = Math.round(goldPrice * 0.985 / 10) * 10
+  const sup2 = Math.round(goldPrice * 0.970 / 10) * 10
+  const res1 = Math.round(goldPrice * 1.015 / 10) * 10
+  const res2 = Math.round(goldPrice * 1.030 / 10) * 10
+  const sup = `Support ~$${sup1.toLocaleString('en-US')}–$${sup2.toLocaleString('en-US')}`
+  const res = `Resistance ~$${res1.toLocaleString('en-US')}–$${res2.toLocaleString('en-US')}`
   let bull = 0
   if (dxyChg   < 0) bull++
   if (us02yChg < 0) bull++
@@ -100,7 +107,6 @@ function updateGoldSignal(dxy, us02y, us10y, dxyChg, us02yChg, us10yChg) {
     ? `Inverted (${spread}%) — sinyal resesi, potensi bullish Gold`
     : `Normal (${spread}%) — yield curve wajar`)
 
-  const sup = 'Support ~$2,300–$2,340', res = 'Resistance ~$2,420–$2,480'
   const conc = document.getElementById('cc-conclusion')
   if (bull >= 2)       conc.textContent = `Bias bullish. ${sup}, akumulasi jika DXY tidak tembus level tinggi. ${res}.`
   else if (bull === 0) conc.textContent = `Bias bearish. Tekanan DXY + yield tinggi tekan XAU. ${sup} kritis. ${res}.`
@@ -183,6 +189,7 @@ export async function fetchAllMarketData() {
   // ---- Gold signal composite ----
   if (dxyR.status === 'fulfilled' && us02yR.status === 'fulfilled' && us10yR.status === 'fulfilled') {
     updateGoldSignal(
+      goldR.status === 'fulfilled' ? goldR.value.price : 0,
       dxyR.value.price,  us02yR.value.price,  us10yR.value.price,
       dxyR.value.change, us02yR.value.change, us10yR.value.change,
     )
