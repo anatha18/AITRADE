@@ -1,18 +1,43 @@
-// Vercel serverless function — proxies stooq.com
-// Avoids CORS: browser → /api/stooq → stooq.com
-export default async function handler(req, res) {
-  const { path } = req.query
-  const url = `https://stooq.com${path}`
+// Vercel Edge Function — proxy untuk market data
+// Mendukung: stooq.com (DXY/yields) dan Yahoo Finance
+export const config = { runtime: 'edge' }
+
+export default async function handler(req) {
+  const url = new URL(req.url)
+  const path = url.searchParams.get('path') || ''
+
+  // Tentukan target berdasarkan prefix path
+  let targetUrl
+  if (path.startsWith('/yahoo/')) {
+    // Yahoo Finance quote: /yahoo/DX-Y.NYB
+    const symbol = path.replace('/yahoo/', '')
+    targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`
+  } else {
+    // stooq.com
+    targetUrl = `https://stooq.com${path}`
+  }
 
   try {
-    const response = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
+    const res = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0',
+        'Accept': 'text/plain,application/json,text/csv,*/*',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
     })
-    const text = await response.text()
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Content-Type', 'text/plain')
-    res.status(200).send(text)
+    const text = await res.text()
+    return new Response(text, {
+      status: 200,
+      headers: {
+        'Content-Type': path.startsWith('/yahoo/') ? 'application/json' : 'text/plain',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-store',
+      },
+    })
   } catch (err) {
-    res.status(500).send(`ERROR: ${err.message}`)
+    return new Response(`ERROR: ${err.message}`, {
+      status: 500,
+      headers: { 'Access-Control-Allow-Origin': '*' },
+    })
   }
 }
